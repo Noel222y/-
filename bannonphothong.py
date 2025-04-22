@@ -58,7 +58,7 @@ async def fish(interaction: discord.Interaction, bait: app_commands.Choice[str])
         weights = [0.1, 0.1, 0.8]
     elif bait_value == "เหยื่อปลอม":
         fish_types = ["ปลาเข็ง", "ปลาตะเพียน", "ปลานิล ", "ปลาดุก", "ปลาช่อน"]
-        weights = [0.3, 0.3, 0.1, 0.1 0.2]
+        weights = [0.3, 0.3, 0.1, 0.1, 0.2]
      
    
 
