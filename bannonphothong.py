@@ -58,6 +58,8 @@ async def fish(interaction: discord.Interaction, bait: app_commands.Choice[str])
         weights = [0.1, 0.1, 0.8]
     elif bait_value == "เหยื่อปลอม":
         fish_types = ["ปลาเข็ง", "ปลาตะเพียน", "ปลานิล ", "ปลาดุก", "ปลาช่อน"]
+        weights = [0.3, 0.3, 0.1, 0.1 0.2]
+     
    
 
     caught_fish = random.choices(fish_types, weights=weights, k=1)[0]
