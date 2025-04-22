@@ -38,37 +38,41 @@ async def on_ready():
 @bot.tree.command(name="ตกปลา", description="ใช้สำหรับตกปลา")
 @app_commands.describe(bait="เลือกเหยื่อที่ใช้ตกปลา")
 @app_commands.choices(bait=[
+    app_commands.Choice(name="ไม่ใช้เหยื่อ", value="ไม่ใช้เหยื่อ"),
     app_commands.Choice(name="ไส้เดือน", value="ไส้เดือน"),
-    app_commands.Choice(name="หนอน", value="หนอน"),
-    app_commands.Choice(name="ปลาทู", value="ปลาทู"),
-    app_commands.Choice(name="แมลง", value="แมลง"),
-    app_commands.Choice(name="ปลาช่อน", value="ปลาช่อน")
+    app_commands.Choice(name="เหยื่อสูตรพี่ศักดิ์", value="เหยื่อสูตรพี่ศักดิ์"),
+    app_commands.Choice(name="เหยื่อปลอม", value="เหยื่อปลอม"),
+ 
 ])
 async def fish(interaction: discord.Interaction, bait: app_commands.Choice[str]):
     bait_value = bait.value
 
-    if bait_value == "หนอน":
-        fish_types = ["ปลาช่อน", "ปลาตะเพียน", "ปลาหมอ"]
+    if bait_value == "ไม่ใช้เหยื่อ":
+        fish_types = ["ปลาเข็ง", "ปลาตะเพียน"]
+        weights = [0.5, 0.5]
     elif bait_value == "ไส้เดือน":
-        fish_types = ["ปลากระพง", "ปลาสวาย", "ปลาดุก"]
-    elif bait_value == "ปลาทู":
-        fish_types = ["ปลากระพง", "ปลาสวาย", "ปลาดุก"]
-    elif bait_value == "แมลง":
-        fish_types = ["ปลาหมึก", "ปลาขาว", "ปลาเทโพ"]
-    else:
-        fish_types = ["ปลาหมู", "ปลานิล", "ปลาเข็ม"]
+        fish_types = ["ปลาเข็ง", "ปลาตะเพียน", "ปลานิล", "ปลาดุก"]
+        weights = [0.1, 0.1, 0.4, 0.4]
+    elif bait_value == "เหยื่อสูตรพี่ศักดิ์":
+        fish_types = ["ปลานิล", "ปลาดุก", "ปลาช่อน"]
+        weights = [0.1, 0.1, 0.8]
+    elif bait_value == "เหยื่อปลอม":
+        fish_types = ["ปลาเข็ง", "ปลาตะเพียน", "ปลานิล ", "ปลาดุก", "ปลาช่อน"]
+   
 
-    caught_fish = random.choice(fish_types)
-    await interaction.response.send_message(f"🎣 คุณใช้เหยื่อ **{bait_value}** และได้ **{caught_fish}** 🐟! ยินดีด้วย!")
+    caught_fish = random.choices(fish_types, weights=weights, k=1)[0]
+    await interaction.response.send_message(
+        f"🎣 คุณใช้เหยื่อ **{bait_value}** และได้ **{caught_fish}** 🐟! ยินดีด้วย!"
+    )
 
 @bot.tree.command(name="เดิมพันลูกเต๋า", description="ทายหน้าเต๋าให้ถูก")
-@app_commands.describe(bet="จำนวนตั๋วที่เดิมพัน", guess="เลขที่ทาย (1-6)")
+@app_commands.describe(bet="จำนวนเงินที่เดิมพัน", guess="เลขที่ทาย (1-6)")
 async def dice_game(interaction: discord.Interaction, bet: int, guess: int):
     user_id = interaction.user.id
     balance = get_balance(user_id)
 
-    if bet <= 0:
-        await interaction.response.send_message("⚠️ ต้องเดิมพันมากกว่า 0")
+    if bet <= 4:
+        await interaction.response.send_message("⚠️ ต้องเดิมพันมากกว่า 4")
         return
 
     if guess not in range(1, 7):
@@ -84,16 +88,16 @@ async def dice_game(interaction: discord.Interaction, bet: int, guess: int):
         win_amount = bet * 3
         update_balance(user_id, win_amount)
         await interaction.response.send_message(
-            f"🎉 ลูกเต๋าออก **{dice}** ทายถูก! ได้รับตั๋ว +{win_amount} ใบ"
+            f"🎉 ลูกเต๋าออก **{dice}** ทายถูก! ได้รับเงิน +{win_amount} พลัน "
         )
     else:
         update_balance(user_id, -bet)
         await interaction.response.send_message(
-            f"😢 ลูกเต๋าออก **{dice}** ทายผิด! เสียตั๋ว -{bet} ใบ"
+            f"😢 ลูกเต๋าออก **{dice}** ทายผิด! เสียเงิน -{bet} พลัน"
         )
 
 @bot.tree.command(name="เป่ายิงฉุบ", description="แข่งเป่ายิงฉุบกับกรณ์")
-@app_commands.describe(bet="จำนวนตั๋วที่เดิมพัน", choice="เลือก ค้อน กรรไกร หรือ กระดาษ")
+@app_commands.describe(bet="จำนวนเงินที่เดิมพัน", choice="เลือก ค้อน กรรไกร หรือ กระดาษ")
 @app_commands.choices(choice=[
     app_commands.Choice(name="🪨 ค้อน", value="ค้อน"),
     app_commands.Choice(name="✂️ กรรไกร", value="กรรไกร"),
@@ -105,8 +109,8 @@ async def rps_game(interaction: discord.Interaction, bet: int, choice: app_comma
     bot_choice = random.choice(["ค้อน", "กรรไกร", "กระดาษ"])
     balance = get_balance(user_id)
 
-    if bet <= 0:
-        await interaction.response.send_message("⚠️ ต้องเดิมพันมากกว่า 0")
+    if bet <= 4:
+        await interaction.response.send_message("⚠️ ต้องเดิมพันมากกว่า 4")
         return
 
     if bet > balance:
@@ -127,12 +131,12 @@ async def rps_game(interaction: discord.Interaction, bet: int, choice: app_comma
 
     if result == "win":
         update_balance(user_id, bet)
-        message = f" คุณเลือก **{player_choice}** | กรณ์เลือก **{bot_choice}**\n✅ คุณชนะ! ได้รับตั๋ว +{bet} ใบ"
+        message = f" คุณเลือก **{player_choice}** | กรณ์เลือก **{bot_choice}**\n✅ คุณชนะ! ได้รับเงิน +{bet} พลัน"
     elif result == "lose":
         update_balance(user_id, -bet)
-        message = f" คุณเลือก **{player_choice}** | กรณ์เลือก **{bot_choice}**\n❌ คุณแพ้! เสียตั๋ว -{bet} ใบ"
+        message = f" คุณเลือก **{player_choice}** | กรณ์เลือก **{bot_choice}**\n❌ คุณแพ้! เสียเงิน -{bet} พลัน"
     else:
-        message = f" คุณเลือก **{player_choice}** | กรณ์เลือก **{bot_choice}**\n🔁 เสมอ! ได้ตั๋วคืน"
+        message = f" คุณเลือก **{player_choice}** | กรณ์เลือก **{bot_choice}**\n🔁 เสมอ! ได้เงินคืน"
 
     await interaction.response.send_message(message)
 
