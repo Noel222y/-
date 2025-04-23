@@ -87,11 +87,13 @@ async def dice_game(interaction: discord.Interaction, bet: int, guess: int):
 
     dice = random.randint(1, 6)
     if guess == dice:
-        win_amount = bet * 3
-        update_balance(user_id, win_amount)
-        await interaction.response.send_message(
-            f"🎉 ลูกเต๋าออก **{dice}** ทายถูก! ได้รับเงิน +{win_amount} พลัน "
-        )
+        payout = bet * 3
+        profit = payout - bet  # หรือ bet * 2
+        update_balance(user_id, profit)
+await interaction.response.send_message(
+    f"🎉 ลูกเต๋าออก **{dice}** ทายถูก! ได้รับเงิน +{profit} พลัน "
+)
+
     else:
         update_balance(user_id, -bet)
         await interaction.response.send_message(
