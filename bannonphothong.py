@@ -81,8 +81,8 @@ async def dice_game(interaction: discord.Interaction, bet: int, guess: int):
         await interaction.response.send_message("🎲 ต้องทายเลขระหว่าง 1 ถึง 6 เท่านั้น")
         return
 
-    if bet > balance:
-        await interaction.response.send_message("💸 คุณมีตั๋วไม่พอเดิมพัน (ถึงไม่โชว์ก็ยังจำกัดอยู่นะ!)")
+    if bet > 40:
+        await interaction.response.send_message("💸 เดิมพันสูงสุด 40 พลัน")
         return
 
     dice = random.randint(1, 6)
@@ -115,8 +115,8 @@ async def rps_game(interaction: discord.Interaction, bet: int, choice: app_comma
         await interaction.response.send_message("⚠️ ต้องเดิมพันมากกว่า 4")
         return
 
-    if bet > balance:
-        await interaction.response.send_message("💸 คุณมีตั๋วไม่พอเดิมพัน")
+    if bet > 40:
+        await interaction.response.send_message("💸 เดิมพันสงสุด 40 พลัน")
         return
 
     result = None
